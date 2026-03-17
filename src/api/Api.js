@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'https://militry-assets-managment.onrender.com/',
+  baseURL: 'https://kristalball-backend-014q.onrender.com/',
 });
 
 API.interceptors.request.use(
