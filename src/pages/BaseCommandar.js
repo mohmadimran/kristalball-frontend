@@ -19,6 +19,7 @@ const BaseCommanderDashboard = () => {
   const userRole = localStorage.getItem("role");
   const userBase = localStorage.getItem("userBase") || "Base A";
 
+  // ✅ Fetch Transfers
   const fetchTransfers = useCallback(async (filterParams = {}) => {
     try {
       const response = await getTransferItems(filterParams);
@@ -35,8 +36,10 @@ const BaseCommanderDashboard = () => {
     }
   }, [userBase]);
 
+  // ✅ Fetch Dashboard Data
   const fetchDashboardData = useCallback(async (filterParams = {}) => {
     try {
+      setLoading(true);
       const response = await getDashbordTransferItem(filterParams);
       setDashboardData(response.data);
     } catch (err) {
@@ -46,6 +49,7 @@ const BaseCommanderDashboard = () => {
     }
   }, []);
 
+  // ✅ useEffect FIXED
   useEffect(() => {
     if (token) {
       fetchDashboardData();
@@ -87,42 +91,32 @@ const BaseCommanderDashboard = () => {
     return new Date(dateString).toLocaleDateString("en-IN");
   };
 
-  if (loading)
+  // ✅ Loading UI
+  if (loading) {
     return (
-      <div className="container mt-4">
-        <div className="d-flex justify-content-center">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
-        </div>
+      <div className="container mt-4 text-center">
+        <div className="spinner-border text-primary" />
       </div>
     );
+  }
 
-  if (error)
+  // ✅ Error UI
+  if (error) {
     return (
       <div className="container mt-4">
         <div className="alert alert-danger">Error: {error}</div>
       </div>
     );
+  }
 
   return (
     <div className="container mt-4">
       <div className="card shadow">
         <div className="card-header bg-warning text-dark">
-          <div className="row align-items-center">
-            <div className="col">
-              <h4 className="mb-0">
-                <i className="fas fa-user-shield me-2"></i>
-                Base Commander Dashboard
-              </h4>
-              <small className="text-muted">
-                Base: {userBase} | Role: {userRole}
-              </small>
-            </div>
-            <div className="col-auto">
-              <span className="badge bg-dark fs-6">Command View</span>
-            </div>
-          </div>
+          <h4>Base Commander Dashboard</h4>
+          <small>
+            Base: {userBase} | Role: {userRole}
+          </small>
         </div>
 
         <div className="card-body">
@@ -135,7 +129,7 @@ const BaseCommanderDashboard = () => {
                 }`}
                 onClick={() => setActiveTab("overview")}
               >
-                📊 Base Overview
+                📊 Overview
               </button>
             </li>
             <li className="nav-item">
@@ -145,80 +139,126 @@ const BaseCommanderDashboard = () => {
                 }`}
                 onClick={() => setActiveTab("transfers")}
               >
-                🔁 Transfer History
+                🔁 Transfers
               </button>
             </li>
           </ul>
 
           {/* Filters */}
-          <div className="card mb-4">
-            <div className="card-body">
-              <div className="row g-3">
-                <div className="col-md-3">
-                  <select
-                    className="form-select"
-                    name="equipmentType"
-                    value={filters.equipmentType}
-                    onChange={handleFilterChange}
-                  >
-                    <option value="">All Types</option>
-                    {equipmentOptions.map((eq) => (
-                      <option key={eq} value={eq}>
-                        {eq}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+          <div className="card mb-4 p-3">
+            <div className="row g-3">
+              <div className="col-md-3">
+                <select
+                  className="form-select"
+                  name="equipmentType"
+                  value={filters.equipmentType}
+                  onChange={handleFilterChange}
+                >
+                  <option value="">All Types</option>
+                  {equipmentOptions.map((eq) => (
+                    <option key={eq} value={eq}>
+                      {eq}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-                <div className="col-md-2">
-                  <input
-                    type="date"
-                    className="form-control"
-                    name="from"
-                    value={filters.from}
-                    onChange={handleFilterChange}
-                  />
-                </div>
+              <div className="col-md-2">
+                <input
+                  type="date"
+                  className="form-control"
+                  name="from"
+                  value={filters.from}
+                  onChange={handleFilterChange}
+                />
+              </div>
 
-                <div className="col-md-2">
-                  <input
-                    type="date"
-                    className="form-control"
-                    name="to"
-                    value={filters.to}
-                    onChange={handleFilterChange}
-                  />
-                </div>
+              <div className="col-md-2">
+                <input
+                  type="date"
+                  className="form-control"
+                  name="to"
+                  value={filters.to}
+                  onChange={handleFilterChange}
+                />
+              </div>
 
-                <div className="col-md-3">
-                  <button
-                    className="btn btn-warning me-2"
-                    onClick={handleApplyFilters}
-                  >
-                    Apply
-                  </button>
-                  <button
-                    className="btn btn-secondary"
-                    onClick={handleResetFilters}
-                  >
-                    Reset
-                  </button>
-                </div>
+              <div className="col-md-3">
+                <button
+                  className="btn btn-warning me-2"
+                  onClick={handleApplyFilters}
+                >
+                  Apply
+                </button>
+                <button
+                  className="btn btn-secondary"
+                  onClick={handleResetFilters}
+                >
+                  Reset
+                </button>
               </div>
             </div>
           </div>
 
-          {/* Transfers Table */}
+          {/* ✅ Overview Tab */}
+          {activeTab === "overview" && dashboardData && (
+            <div className="row text-center mb-4">
+              <div className="col-md-3">
+                <div className="card border-primary p-3">
+                  <h6>Opening</h6>
+                  <h4>{dashboardData.openingBalance}</h4>
+                </div>
+              </div>
+
+              <div className="col-md-3">
+                <div className="card border-success p-3">
+                  <h6>Purchases</h6>
+                  <h4>+{dashboardData.purchases}</h4>
+                </div>
+              </div>
+
+              <div className="col-md-3">
+                <div className="card border-info p-3">
+                  <h6>Net Movement</h6>
+                  <h4>{dashboardData.netMovement}</h4>
+                </div>
+              </div>
+
+              <div className="col-md-3">
+                <div className="card border-warning p-3">
+                  <h6>Closing</h6>
+                  <h4>{dashboardData.closingBalance}</h4>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ✅ Transfers Tab */}
           {activeTab === "transfers" && (
-            <table className="table">
+            <table className="table table-bordered">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Equipment</th>
+                  <th>Quantity</th>
+                </tr>
+              </thead>
               <tbody>
-                {transfers.map((t) => (
-                  <tr key={t._id}>
-                    <td>{formatDate(t.date)}</td>
-                    <td>{t.equipmentType}</td>
-                    <td>{t.quantity}</td>
+                {transfers.length > 0 ? (
+                  transfers.map((t) => (
+                    <tr key={t._id}>
+                      <td>{formatDate(t.date)}</td>
+                      <td>{t.equipmentType}</td>
+                      <td>{t.quantity}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="3" className="text-center">
+                      No data found
+                    </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           )}
